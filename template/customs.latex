@@ -1,0 +1,44 @@
+\usepackage{ifthen}
+\usepackage{mdframed}
+
+
+\newcommand{\R}{\mathbb{R}}
+
+\newcommand{\angled}[1]{\langle #1 \rangle}
+\newcommand{\braced}[1]{\left(#1\right)}
+
+\newcommand{\funcdef}[3]{#1: #2 \rightarrow #3}
+\newcommand{\set}[2]{\{#1 : #2\}}
+
+\newenvironment{Def}{
+    \textbf{Определение}. 
+}{
+}
+
+\newenvironment{Lm}[1][]{
+    \textbf{Лемма}\ifthenelse{\equal{#1}{}}{}{ (#1)}. 
+}{
+}
+
+\newenvironment{Thm}[1][]{
+    \textbf{Теорема}\ifthenelse{\equal{#1}{}}{}{ (#1)}. 
+}{
+}
+
+\newenvironment{Proof}{
+    \textit{Доказательство}: 
+}{
+    $\blacksquare$
+}
+
+\newenvironment{Rem}{
+    \textbf{Замечание}. 
+}{
+}
+
+\newenvironment{unit}{
+\begin{mdframed}[skipbelow=10pt, skipabove=10pt]
+}{
+\end{mdframed}
+}
+
