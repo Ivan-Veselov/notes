@@ -201,6 +201,8 @@ $if(author)$
 $endif$
 \date{$date$}
 
+\usepackage{dutchcal}
+
 % Special commands and environments
 \input{template/customs.latex}
 

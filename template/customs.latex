@@ -8,10 +8,24 @@
 \newcommand{\braced}[1]{\left(#1\right)}
 
 \newcommand{\funcdef}[3]{#1: #2 \rightarrow #3}
-\newcommand{\set}[2]{\{#1 : #2\}}
+\newcommand{\set}[2]{\{#1\ |\ #2\}}
+
+\newcommand{\closedBall}[1]{B\braced{#1}}
+\newcommand{\openBall}[1]{U\braced{#1}}
+\newcommand{\puncturedOpenBall}[1]{\mathring{U}\braced{#1}}
+
+\newcommand{\Ext}[1]{\mathcal{Ext} #1}
+\newcommand{\Int}[1]{\mathcal{Int} #1}
+\newcommand{\Boundary}[1]{\partial #1}
+\newcommand{\Cl}[1]{\mathcal{Cl} #1}
 
 \newenvironment{Def}{
     \textbf{Определение}. 
+}{
+}
+
+\newenvironment{Clm}[1][]{
+    \textbf{Утверждение}\ifthenelse{\equal{#1}{}}{}{ (#1)}. 
 }{
 }
 
