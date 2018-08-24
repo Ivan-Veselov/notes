@@ -3,6 +3,6 @@ OBJECTS := $(SOURCES:%.md=%.pdf)
 
 all: $(OBJECTS)
 
-%.pdf: %.md
+%.pdf: %.md template/customs.latex template/template.latex
 	pandoc $< -V lang=ru -V geometry="top=1cm, bottom=1.5cm, left=1cm, right=1cm" -o $@ --template=template/template.latex
 
