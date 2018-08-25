@@ -39,7 +39,10 @@
 }{
 }
 
+\definecolor{lightgray}{gray}{0.8}
+
 \newenvironment{Proof}{
+\color{lightgray}
     \textit{Доказательство}: 
 }{
     $\blacksquare$
