@@ -48,6 +48,12 @@
     $\blacksquare$
 }
 
+\newenvironment{Tip}{
+\color{lightgray}
+    \textit{Подсказка}: 
+}{
+}
+
 \newenvironment{Rem}{
     \textbf{Замечание}. 
 }{
