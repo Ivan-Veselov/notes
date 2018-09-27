@@ -4,6 +4,8 @@
 
 \newcommand{\R}{\mathbb{R}}
 
+\newcommand\restrict[2]{#1|_{#2}}
+
 \newcommand{\angled}[1]{\langle #1 \rangle}
 \newcommand{\braced}[1]{\left(#1\right)}
 
