@@ -3,6 +3,7 @@
 
 
 \newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
 
 \newcommand\restrict[2]{#1|_{#2}}
 
