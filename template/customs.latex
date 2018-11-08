@@ -26,7 +26,9 @@
 \newcommand{\sequence}[4]{\{ #1_{#2} \}_{#2 = #3}^{#4}}
 \newcommand{\limit}[3]{\lim\limits_{#2 \to #3}{#1}}
 
-\newcommand{\vdim}[1]{\dim\ #1}
+\newcommand{\vdim}[1]{dim\ #1}
+\newcommand{\vker}[1]{Ker\ #1}
+\newcommand{\im}[1]{Im\ #1}
 
 \newenvironment{Def}{
     \textbf{Определение}. 
