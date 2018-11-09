@@ -46,5 +46,7 @@ $rank\ AB \leq min \{ rank\ A, rank\ B \}$.
 $B$.
 \end{Proof}
 \end{Thm}
+
+Нужно это же, но на языке линейных отображений!!!
 \end{unit}
 
