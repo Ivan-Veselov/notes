@@ -48,5 +48,24 @@ $\alpha f(u) + \beta f(v) = f(\alpha u + \beta v) \in f(U)$
 $f(U) = \angled{f(e_{1}), f(e_{2}), \dots, f(e_{s})}$. В частности
 $$\vdim{f(U)} \leq \vdim{U}$$
 \end{Thm}
+
+\begin{Thm}
+Пусть $V$ — конечномерное векторное пространство над полем $F$, $\funcdef{f}{V}{W}$ -- линейное отображение. Тогда
+$\vker{f}$ и $\im{f}$ конечномерны и
+$$\vdim{\vker{f}} + \vdim{\im{f}} = \vdim{V}$$
+
+\begin{Tip}
+Дополнить базис ядра до базиса всего $V$.
+\end{Tip}
+\end{Thm}
+
+Как следствие вытекает утверждение.
+
+\begin{Clm}
+В случае $\vdim{V} < \infty$ для линейного отображения $\funcdef{f}{V}{W}$ верно, что
+$$f\ \text{инъективно} \Leftrightarrow \vdim{V} = \vdim{\im{f}}$$
+\end{Clm}
+
+В частности, если $\vdim{V} = \vdim{W}$, то из инъективности или сюръективности $f$ сразу же следует биективность. 
 \end{unit}
 
