@@ -30,6 +30,7 @@
 \newcommand{\vdim}[1]{dim\ #1}
 \newcommand{\vker}[1]{Ker\ #1}
 \newcommand{\im}[1]{Im\ #1}
+\newcommand{\transposed}[1]{#1^{T}}
 
 \newenvironment{Def}{
     \textbf{Определение}. 
