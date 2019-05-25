@@ -1,0 +1,16 @@
+class Foo {
+public:
+    ~Foo();
+    // ...
+};
+
+Destructor has a function body and a destruction part. Destruction part destroys members in a backward order
+(from last to first) and is run after destructor body is finished.
+
+When a destructor is called:
+* variables are destroyed when they go out of scope
+* members of an object are destroyed when the object of which they are a part is destroyed
+* dynamically allocated objects are destroyed when the delete operator is applied to a pointer to the object
+* temporary objects are destroyed at the end of the full expression in which the temporary was created
+
+Synthesized destructor has empty body, but destruction part destroys members.

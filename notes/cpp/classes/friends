@@ -1,0 +1,44 @@
+A class can allow another class or function to access its nonpublic members by
+making that class or function a friend.
+
+A class makes a function its friend by including
+a declaration for that function preceded by the keyword friend
+
+If we want users of the class to be able to call a friend function (or class), then we
+must also declare the function separately from the friend declaration.
+
+class Screen {
+    // Window_mgr members can access the private parts of class Screen
+    friend class Window_mgr;
+    // ... rest of the Screen class
+};
+
+Making A Member Function a Friend
+class Screen {
+    // Window_mgr::clear must have been declared before class Screen
+    friend void Window_mgr::clear(ScreenIndex);
+    // ... rest of the Screen class
+};
+
+Friends of the base have no special access to members of its derived classes, and
+friends of a derived class have no special access to the base class
+
+class Base {
+    // added friend declaration; other members as before
+    friend class Pal; // Pal has no access to classes derived from Base
+    
+    protected:
+        int prot_mem;
+};
+
+class Pal {
+public:
+    int f(Base b) { return b.prot_mem; } // ok: Pal is a friend of Base
+    int f2(Sneaky s) { return s.j; } // error: Pal not friend of Sneaky
+    // access to a base class is controlled by the base class, even inside a derived object
+    int f3(Sneaky s) { return s.prot_mem; } // ok: Pal is a friend of Base
+};
+
+f3 is special. Pal is not a friend of Sneaky but it is a friend of Base part of Sneaky
+
+Friendship is not inherited; each class controls access to its members.

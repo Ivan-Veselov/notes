@@ -1,0 +1,86 @@
+Argument is an initialization of a parameter
+
+we have no guarantees about the order in which arguments are evaluated
+
+For compatibility with
+C, we also can use the keyword void to indicate that there are no parameters:
+void f2(void){ /* ... */ } // explicit void parameter list
+
+Parameter names are optional. However, there is no way to use an unnamed
+parameter.
+
+return type may not be an array type or a function type
+However, a function may return a pointer to an array or a function
+
+Each local
+static object is initialized before the first time execution passes through the object’s
+definition.
+
+If a local static has no explicit initializer, it is value initialized
+
+parameter names are often omitted in a declaration.
+Although parameter
+names are not required, they can be used to help users of the function understand
+what the function does
+
+The header that declares a function should be included in the source file that
+defines that function.
+
+Parameter initialization works the same way as variable initialization.
+Remember about different types of references.
+
+Reference parameters that are not changed inside a function should be
+references to const.
+
+void fcn(const int i) { /* fcn can read but not write to i */ }
+void fcn(int i) { /* . . . */ } // error: redefines fcn(int)
+
+// each function has a single parameter of type const int*
+void print(const int*);
+void print(const int[]);   // shows the intent that the function takes an array
+void print(const int[10]); // dimension for documentation purposes (at best)
+Regardless of appearances, these declarations are equivalent: Each declares a function
+with a single parameter of type const int*.
+
+As with any code that uses arrays, functions that take array parameters must
+ensure that all uses of the array stay within the array bounds.
+
+// ok: parameter is a reference to an array; the dimension is part of the type
+void print(int (&arr)[10])
+{
+    for (auto elem : arr)
+        cout << elem << endl;
+}
+
+int main(int argc, char *argv[]) { ... }
+
+When you use the arguments in argv, remember that the optional
+arguments begin in argv[1]; argv[0] contains the program’s name, not
+user input.
+
+One good way to ensure that the return is safe is to ask: To what preexisting
+object is the reference referring?
+
+Calls to functions that return references are lvalues
+
+Function that returns pointer to array of 10 ints.
+int (*func(int i))[10];
+
+Trailing return type:
+auto func(int i) -> int(*)[10];
+
+Default values:
+string screen(sz = ht(), sz = wd, char = def);
+Names used as default arguments are resolved in the scope of the function
+declaration. The value that those names represent is evaluated at the time of the call
+
+A function specified as inline (usually) is expanded “in line” at each call.
+The inline specification is only a request to the compiler. The compiler may
+choose to ignore this request.
+
+Put inline and constexpr Functions in Header Files 
+Unlike other functions, inline and constexpr functions may be defined multiple
+times in the program. However, all of the definitions of a given
+inline or constexpr must match exactly.
+
+

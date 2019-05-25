@@ -1,0 +1,8 @@
+// the type of item is deduced from the type of the result of adding val1 and val2
+auto item = val1 + val2; // item initialized to the result of val1 + val2
+
+references and const have to be specified expicitly
+
+int i = 0, &r = i;
+auto a = r;  // a is an int (r is an alias for i, which has type int)
+// Second, auto ordinarily ignores top-level consts

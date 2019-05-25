@@ -1,0 +1,25 @@
+In addition to defining the copy-control members, classes that manage resources often also define a function named swap.
+The reason is that std::swap is unoptimized.
+
+class HasPtr {
+    friend void swap(HasPtr&, HasPtr&);
+    // ...
+};
+
+inline void swap(HasPtr &lhs, HasPtr &rhs) {
+    using std::swap;
+    swap(lhs.ps, rhs.ps);
+    swap(lhs.i, rhs.i);
+}
+
+swap function should call swap, not std::swap (hence using std::swap at the beginning)
+
+copy and swap for assignment:
+
+// note rhs is passed by value, which means the copy constructor is invoked
+HasPtr& HasPtr::operator = (HasPtr rhs) {
+    swap(*this, rhs);
+    return *this;
+}
+
+Assignment operators that use copy and swap are automatically exception safe and correctly handle self-assignment.

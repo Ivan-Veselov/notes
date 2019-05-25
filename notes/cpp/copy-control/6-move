@@ -1,0 +1,54 @@
+lvalues persist; rvalues are ephemeral
+
+int &&r = i * 42; // ok: bind r to the result of the multiplication
+
+Rvalue references refer to objects that are about to be destroyed. Hence, we can "steal" state from an object
+bound to an rvalue reference.
+
+variables are lvalues
+void push_back(string &&s) {
+    // ...
+    alloc.construct(first_free++, std::move(s)); // without move s is a variable and therefore is lvalue
+}
+
+std::move returns a rvalue reference associated with its argument.
+
+Code that uses move should use std::move, not move. Doing so avoids potential name collisions.
+
+move constructor:
+
+A::A(A &&a) noexcept
+: field(a.field) {
+    a.field = nullptr;
+}
+
+vectors push_back gives exceptions guarantees. If it doesn't know that move constructor won't throw an exception
+it will use copy constructor instead. noexcept gives performance boost.
+
+A moved-from object must be left destructible
+
+The compiler synthesized the move constructor and move assignment only if a class does not define any of its own copy-control members and only if all the data members can be moved constructed and move assigned, respectively.
+
+Classes that define a move constructor or move-assignment operator must also define their own copy operations. Otherwise, those members are deleted by default.
+
+Rvalues are copied if there is no move constructor. Copy constructor can perform "move" indeed.
+
+copy-and-swap assignment works as copy/move assignment automatically
+HasPtr& operator = (HasPtr rhs) { ... }
+// rhs will be copied or moved depending on actual type of an argument
+
+make_move_iterator adapts its given iterator by changing the behavior of the iterator's dereference operator.
+
+Best Practices
+Outside of class implementation code such as move constructors or move-assignment operators, use std::move only when you are certain that you need to do a move and that the move is guaranteed to be safe.
+
+Member functions can be overloaded:
+void push_back(const X&);
+void push_back(X&&); // remember to use std::move inside of body as parameter itself is a variable which is lvalue
+
+To overload based on 'this':
+
+Array sorted() &&;
+Array sorted() const &; // only for lvalues
+
+If a member function has a reference qualifier, all the versions of that member with the same parameter list must have reference qualifiers.

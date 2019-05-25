@@ -1,0 +1,20 @@
+A a, b;
+a = b; // uses copy-assignment operator
+
+class Foo {
+public:
+    Foo& operator=(const Foo&);
+    // ...
+};
+
+To be consistent with assignment for the built-in types, assignment operators usually return a reference to their left-hand operand.
+
+Synthesized copy-assignment operator uses memberwise assignment.
+
+There are two points to keep in mind when you write an assignment operator:
+* assignment operators must work correctly if an object is assigned to itself
+* most assignment operators share work with the destructor and copy constructor
+
+A good pattern to use when you write an assignment operator is to first copy the right-hand operand into a
+local temporary. After the copy is done, it is safe to destroy the existing members of the left-hand operand. Once
+the left-hand operand is destroyed, copy the data from the temporary into the members of the left-hand operand.

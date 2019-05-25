@@ -1,0 +1,7 @@
+Except for bool and the extended character types, the integral types may be signed or unsigned.
+
+Signed values are automatically converted to unsigned when used with them
+
+// multiline string literal
+std::cout << "a really, really long string literal "
+             "that spans two lines" << std::endl;

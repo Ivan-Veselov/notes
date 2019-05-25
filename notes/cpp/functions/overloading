@@ -1,0 +1,45 @@
+The main function may not be overloaded.
+
+It is an error for two functions to differ only in terms of their return types.
+ 
+Two parameter lists can be identical, even if they don’t look the same:
+// each pair declares the same function
+Record lookup(const Account &acct);
+Record lookup(const Account&); // parameter names are ignored
+
+typedef Phone Telno;
+Record lookup(const Phone&);
+Record lookup(const Telno&); // Telno and Phone are the same type
+
+Top-level const (§ 2.4.3, p. 63) has no effect on the objects that can be passed to the function.
+
+Names do not overload across scopes
+
+To be viable, a function must have the same number of parameters as
+there are arguments in the call, and the type of each argument must match—or be
+convertible to—the type of its corresponding parameter.
+
+If there are no viable functions, the compiler will complain that there is no
+matching function.
+
+There is an overall best match if there is one and only one function for which:
+• The match for each argument is no worse than the match required by any other
+viable function
+• There is at least one argument for which the match is better than the match
+provided by any other viable function
+
+Casts should not be needed to call an overloaded function. The need for a
+cast suggests that the parameter sets are designed poorly.
+
+Conversions are ranked as follows: 
+1. An exact match. An exact match happens when:
+• The argument and parameter types are identical.
+• The argument is converted from an array or function type to the corresponding
+pointer type.
+• A top-level const is added to or discarded from the argument.
+2. Match through a const conversion.
+3. Match through a promotion.
+4. Match through an arithmetic or pointer conversion.
+5. Match through a class-type conversion.
+
+Anyway only one conversion is allowed

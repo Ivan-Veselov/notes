@@ -1,0 +1,58 @@
+const int sz = 42;
+int arr[10];             // array of ten ints
+int *parr[sz];           // array of 42 pointers to int
+
+By default, the elements in an array are default initialized (§ 2.2.1, p. 43).
+
+As with vector, arrays hold
+objects. Thus, there are no arrays of references.
+
+initialization:
+const unsigned sz = 3;
+int ia1[sz] = {0,1,2};        // array of three ints with values 0, 1, 2
+int a2[] = {0, 1, 2};         // an array of dimension 3
+int a3[5] = {0, 1, 2};        // equivalent to a3[] = {0, 1, 2, 0, 0}
+string a4[3] = {"hi", "bye"}; // same as a4[] =  {"hi", "bye", ""}
+int a5[2] = {0,1,2};          // error: too many initializers
+
+Character arrays are special:
+char a1[] = {'C', '+', '+'};       // list initialization, no null
+char a2[] = {'C', '+', '+', '\0'}; // list initialization, explicit null
+char a3[] = "C++";                 // null terminator added automatically
+const char a4[6] = "Daniel";       // error: no space for the null!
+
+We cannot initialize an array as a copy of another array, nor is it legal to assign one
+array to another
+
+int *ptrs[10];            //  ptrs is an array of ten pointers to int
+int &refs[10] = /* ? */;  //  error: no arrays of references
+int (*Parray)[10] = &arr; //  Parray points to an array of ten ints
+int (&arrRef)[10] = arr;  //  arrRef refers to an array of ten ints
+int *(&arry)[10] = ptrs; // arry is a reference to an array of ten pointers
+
+It can be easier to understand array declarations by starting with the array’s
+name and reading them from the inside out.
+
+When we use a variable to subscript an array, we normally should define that
+variable to have type size_t.
+
+In most expressions, when we use an object of array type, we are really
+using a pointer to the first element in that array.
+string *p2 = nums;      // equivalent to p2 = &nums[0]
+
+Pointers Are Iterators
+int ia[] = {0,1,2,3,4,5,6,7,8,9}; // ia is an array of ten ints
+int *beg = begin(ia); // pointer to the first element in ia
+int *last = end(ia);  // pointer one past the last element in ia
+
+We can use the subscript operator on any pointer, as long as that pointer points to an
+element (or one past the last element) in an array:
+int *p = &ia[2];  // p points to the element indexed by 2
+int j = p[1];     // p[1] is equivalent to *(p + 1),
+                  // p[1] is the same element as ia[3]
+int k = p[-2];    // p[-2] is the same element as ia[0]
+
+Unlike subscripts for vector and string, the index of the built-in subscript
+operator is not an unsigned type.
+
+

@@ -31,6 +31,7 @@
 \newcommand{\vker}[1]{Ker\ #1}
 \newcommand{\im}[1]{Im\ #1}
 \newcommand{\transposed}[1]{#1^{T}}
+\newcommand{\Spec}[1]{Spec\ #1}
 
 \newenvironment{Def}{
     \textbf{Определение}. 

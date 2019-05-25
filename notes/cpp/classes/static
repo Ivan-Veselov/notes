@@ -1,0 +1,46 @@
+double r;
+r = Account::rate(); // access a static member using the scope operator
+
+Account ac1;
+Account *ac2 = &ac1;
+// equivalent ways to call the static member rate function
+r = ac1.rate();      // through an Account object or reference
+r = ac2->rate();     // through a pointer to an Account object
+
+we must define and initialize each static
+data member outside the class body.
+
+Like global objects (§ 6.1.1, p. 204), static data members are defined outside any
+function. Hence, once they are defined, they continue to exist until the program
+completes.
+
+// define and initialize a static class member
+double Account::interestRate = initRate();
+
+The definition of
+interestRate, like any other member definition, has access to the private
+members of the class.
+
+The best way to ensure that the object is defined exactly once is to put the
+definition of static data members in the same file that contains the
+definitions of the class noninline member functions.
+
+Ordinarily, class static members may not be initialized in the class body. However,
+we can provide in-class initializers for static members that have const integral
+type and must do so for static members that are constexprs of literal type
+
+// definition of a static member with no initializer
+constexpr int Account::period; // initializer provided in the class
+definition
+
+Even if a const static data member is initialized in the class body, that
+member ordinarily should be defined outside the class definition.
+
+a static data member can have incomplete type
+In particular, a static data member can have the same type as the class type of which
+it is a member.
+
+Another difference between static and ordinary members is that we can use a
+static member as a default argument
+
+

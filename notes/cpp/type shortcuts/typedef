@@ -1,0 +1,4 @@
+typedef double wages;   // wages is a synonym for double
+typedef wages base, *p; // base is a synonym for double, p for double*
+
+

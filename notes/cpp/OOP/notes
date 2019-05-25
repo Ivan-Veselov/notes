@@ -1,0 +1,294 @@
+The base class defines as
+virtual those functions it expects its derived classes to define for themselves.
+
+class Bulk_quote : public Quote { // Bulk_quote inherits from Quote
+public:
+    double net_price(std::size_t) const override;
+};
+
+In C++, dynamic binding happens when a virtual function is called through a
+reference (or a pointer) to a base class.
+
+Base classes ordinarily should define a virtual destructor. Virtual destructors
+are needed even if they do no work.
+
+Executing delete on a pointer to base that points to a derived object has
+undefined behavior if the base’s destructor is not virtual.
+
+A function that is declared as
+virtual in the base class is implicitly virtual in the derived classes as well.
+
+we can bind a base-class reference or pointer to the base-class part of a
+derived object.
+This conversion is often referred to as the derived-to-base conversion. As with any
+other conversion, the compiler will apply the derived-to-base conversion implicitly
+
+The fact that a derived object contains subobjects for its base classes is key
+to how inheritance works.
+
+Constructor of a derived class:
+Bulk_quote(const std::string& book, double p,
+           std::size_t qty, double disc) :
+           Quote(book, p), min_qty(qty), discount(disc) { }
+    // as before
+};
+
+The base class is initialized first, and then the members of the derived class
+are initialized in the order in which they are declared in the class.
+
+Declarations of Derived Classes must not contain derivation list:
+class Bulk_quote : public Quote; // error: derivation list can't appear here
+class Bulk_quote;                // ok: right way to declare a derived class
+
+A class must be defined, not just declared, before we can use it as a base class
+
+Under the new standard, we can prevent a class from being used as a
+base by following the class name with final:
+
+class NoDerived final { /*  */ }; // NoDerived can't be a base class
+
+We can bind a pointer or reference
+to a base-class type to an object of a type derived from that base class.
+
+It is crucial to understand that the static type of a pointer or reference to a
+base class may differ from its dynamic type.
+
+We can use static_cast to convert from Base to Derived class when we know that conversion is safe.
+
+Because copy-constructor and assignment operator use references we can initialize or assign Base class object from
+Derived object.
+When we initialize or assign an object of a base type from an object of a
+derived type, only the base-class part of the derived object is copied, moved,
+or assigned. The derived part of the object is ignored.
+
+Virtuals are resolved at run time only if the call is made through a
+reference or pointer. Only in these cases is it possible for an object’s
+dynamic type to differ from its static type.
+
+A function that is virtual in a base class is implicitly virtual in its
+derived classes. When a derived class overrides a virtual, the parameters in
+the base and derived classes must match exactly.
+With one exception, the return type of a virtual in the derived class also must match
+the return type of the function from the base class. The exception applies to virtuals
+that return a reference (or pointer) to types that are themselves related by
+inheritance.
+
+struct B {
+    virtual void f1(int) const;
+    virtual void f2();
+    void f3();
+};
+struct D1 : B {
+    void f1(int) const override; // ok: f1 matches f1 in the base
+    void f2(int) override; // error: B has no f2(int) function
+    void f3() override;    // error: f3 not virtual
+    void f4() override;    // error: B doesn't have a function named f4
+};
+
+We can also designate a function as final.
+
+final and override specifiers appear after the parameter list (including any const
+or reference qualifiers) and after a trailing return
+
+Like any other function, a virtual function can have default arguments. If a call uses a default argument, the value that is used is the one defined by
+the static type through which the function is called.
+
+//  calls the version from the base class regardless of the dynamic type of baseP
+double undiscounted = baseP->Quote::net_price(42);
+
+Ordinarily, only code inside member functions (or friends) should need to use
+the scope operator to circumvent the virtual mechanism.
+
+If a derived virtual function that intended to call its base-class version omits
+the scope operator, the call will be resolved at run time as a call to the
+derived version itself, resulting in an infinite recursion.
+
+We specify that a virtual
+function is a pure virtual by writing = 0 in place of a function body
+
+It is worth noting that we can provide a definition for a pure virtual. However, the
+function body must be defined outside the class. That is, we cannot provide a function
+body inside the class for a function that is = 0.
+
+A class containing (or inheriting without overridding) a pure virtual function is an
+abstract base class.
+We cannot (directly) create objects of a type that is an abstract
+base class.
+
+Abstract class may have base class that is not abstract and redefine member function from it to be pure vitrual.
+
+The protected specifier can be thought of as a blend of private and public:
+* Like private, protected members are inaccessible to users of the class.
+* Like public, protected members are accessible to members and friends of classes derived from this class.
+In addition, protected has another important property:
+* A derived class member or friend may access the protected members of the
+base class only through a derived object. The derived class has no special
+access to the protected members of base-class objects.
+
+Access to a member that a class inherits is controlled by a combination of the access
+specifier for that member in the base class, and the access specifier in the derivation
+list of the derived class.
+The derivation access specifier has no effect on whether members (and friends) of a
+derived class may access the members of its own direct base class.
+The purpose of the derivation access specifier is to control the access that users of
+the derived class—including other classes derived from the derived class—have to the
+members inherited from Base
+
+Whether the derived-to-base conversion is accessible depends on
+which code is trying to use the conversion and may depend on the access specifier
+used in the derived class’ derivation. Assuming D inherits from B:
+* User code may use the derived-to-base conversion only if D inherits publicly
+from B. User code may not use the conversion if D inherits from B using either
+protected or private.
+* Member functions and friends of D can use the conversion to B regardless of
+how D inherits from B. The derived-to-base conversion to a direct base class is
+always accessible to members and friends of a derived class.
+* Member functions and friends of classes derived from D may use the derived-to-
+base conversion if D inherits from B using either public or protected. Such
+code may not use the conversion if D inherits privately from B.
+
+For any given point in your code, if a public member of the base class
+would be accessible, then the derived-to-base conversion is also accessible,
+and not otherwise.
+
+An implementation member should be protected if it provides an operation or
+data that a derived class will need to use in its own implementation.
+Otherwise, implementation members should be private.
+
+class Base {
+public:
+    std::size_t size() const { return n; }
+protected:
+    std::size_t n;
+};
+class Derived : private Base {    //  note: private inheritance
+public:
+    // maintain access levels for members related to the size of the object
+    using Base::size;
+protected:
+    using Base::n;
+};
+
+Because Derived uses private inheritance, the inherited members, size and n,
+are (by default) private members of Derived. The using declarations adjust the
+accessibility of these members.
+
+A derived class may provide a using declaration only for names it is
+permitted to access.
+
+By default, a derived
+class defined with the class keyword has private inheritance; a derived class
+defined with struct has public inheritance:
+class Base { /* ...   */ };
+struct D1 : Base { /* ...   */ };   // public inheritance by default
+class D2 : Base { /* ...   */ };    // private inheritance by default
+
+
+
+Under inheritance, the scope of a derived class is nested (§2.2.4, p. 48) inside the
+scope of its base classes.
+
+As usual, names defined in an inner scope (e.g., a derived class)
+hide uses of that name in the outer scope (e.g., a base class)
+
+We can use a hidden base-class member by using the scope operator
+
+Aside from overriding inherited virtual functions, a derived class usually
+should not reuse names defined in its base class.
+
+As we’ve seen, functions declared in an inner scope do not overload functions
+declared in an outer scope (§6.4.1, p. 234). As a result, functions defined in a derived
+class do not overload members defined in its base class(es).
+
+If a derived class wants to make all the overloaded versions
+available through its type, then it must override all of them or none of them.
+
+Instead of overriding every base-class version that it inherits, a derived class can
+provide a using declaration (§15.5, p. 615) for the overloaded member. A using
+declaration specifies only a name; it may not specify a parameter list. Thus, a using
+declaration for a base-class member function adds all the overloaded instances of that
+function to the scope of the derived class.
+
+
+
+The synthesized copy-control members in a base or a derived class execute like any
+other synthesized constructor, assignment operator, or destructor: They memberwise
+initialize, assign, or destroy the members of the class itself. In addition, these
+synthesized members initialize, assign, or destroy the direct base part of an object by
+using the corresponding operation from the base class.
+
+If a base class doesn't have some copy-control operation then derived class cannot synthesize this operation for
+itself.
+
+As we’ve seen, most base classes define a virtual destructor. As a result, by default,
+base classes generally do not get synthesized move operations.
+
+When a derived class defines a copy or move operation, that operation is
+responsible for copying or moving the entire object, including base-class
+members.
+
+By default, the base-class default constructor initializes the base-class part of
+a derived object. If we want copy (or move) the base-class part, we must
+explicitly use the copy (or move) constructor for the base class in the
+derived’s constructor initializer list.
+
+// Base::operator=(const Base&) is not invoked automatically
+D &D::operator=(const D &rhs)
+{
+    Base::operator=(rhs); // assigns the base part
+    // assign the members in the derived class, as usual,
+    // handling self-assignment and freeing existing resources as appropriate
+    return *this;
+}
+
+unlike the constructors and assignment operators, a
+derived destructor is responsible only for destroying the resources allocated by the
+derived class
+
+If a constructor or destructor calls a virtual, the version that is run is the one
+corresponding to the type of the constructor or destructor itself.
+This binding applies to virtuals called directly or that are
+called indirectly from a function that the constructor (or destructor) calls.
+
+
+ctor "inheritance":
+class Bulk_quote : public Disc_quote {
+public:
+    using Disc_quote::Disc_quote; // inherit Disc_quote's constructors
+    double net_price(std::size_t) const;
+};
+
+Ordinarily, a using declaration only makes a name visible in the current scope. When
+applied to a constructor, a using declaration causes the compiler to generate code.
+The compiler generates a derived constructor corresponding to each constructor in the
+base. That is, for each constructor in the base class, the compiler generates a
+constructor in the derived class that has the same parameter list.
+
+These compiler-generated constructors have the form:
+derived(parms) : base(args) { }
+
+Unlike using declarations for ordinary members, a constructor using declaration
+does not change the access level of the inherited constructor(s).
+
+  Moreover, a using declaration can’t specify explicit or constexpr. If a
+constructor in the base is explicit (§7.5.4, p. 296) or constexpr (§7.5.6, p. 299),
+the inherited constructor has the same property.
+
+If a base class has several constructors, then with two exceptions, the derived class
+inherits each of the constructors from its base class. The first exception is that a
+derived class can inherit some constructors and define its own versions of other
+constructors. If the derived class defines a constructor with the same parameters as a
+constructor in the base, then that constructor is not inherited
+
+The second exception is that the default, copy, and move constructors are not
+inherited
+
+An inherited
+constructor is not treated as a user-defined constructor. Therefore, a class that
+contains only inherited constructors will have a synthesized default constructor.
+
+Because derived objects are “sliced down” when assigned to a base-type
+object, containers and types related by inheritance do not mix well.
+
+
+

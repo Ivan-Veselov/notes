@@ -1,0 +1,24 @@
+decltype, which returns the type of its operand.
+
+decltype(f()) sum = x; // sum has whatever type f returns
+
+When the expression to which we apply decltype is a variable,
+decltype returns the type of that variable, including top-level const and
+references
+
+Remember that decltype(( variable )) (note, double parentheses) is always
+a reference type, but decltype( variable ) is a reference type only if variable
+is a reference.
+
+// decltype of an expression can be a reference type
+int i = 42, *p = &i, &r = i;
+decltype(r + 0) b;  // ok: addition yields an int; b is an (uninitialized) int
+decltype(*p) c;     // error: c is int& and must be initialized
+
+int odd[] = {1,3,5,7,9};
+int even[] = {0,2,4,6,8};
+// returns a pointer to an array of five int elements
+decltype(odd) *arrPtr(int i)C++ Primer, Fifth Edition
+{
+    return (i % 2) ? &odd : &even; // returns a pointer to the array
+}

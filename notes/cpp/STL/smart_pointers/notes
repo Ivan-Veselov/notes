@@ -1,0 +1,3 @@
+Like built-in pointers, the smart pointer classes (§12.1, p. 450) support the
+derived-to-base conversion—we can store a pointer to a derived object in a
+smart pointer to the base type.

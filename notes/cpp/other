@@ -1,0 +1,21 @@
+When we use curly braces, {...}, we’re saying that, if possible, we want to list
+initialize the object. That is, if there is a way to use the values inside the curly braces
+as a list of element initializers, the class will do so. Only if it is not possible to list
+initialize the object will the other ways to initialize the object be considered.
+
+A temporary object is usually destroyed immediately after the entire expression in which it was created has been fully evaluated. There's an exception to this rule though. When the temporary object is bound to a reference, the lifetime of that object is extended.
+
+Default initialization happens
+* When we define nonstatic variables or arrays at block scope without initializers
+* When a class that itself has members of class type uses the synthesized default
+constructor
+* When members of class type are not explicitly initialized in a constructor
+initializer list
+
+Value initialization happens 
+* During array initialization when we provide fewer initializers than the size of the array
+* When we define a local static object without an initializer
+* When we explicitly request value initialization by writing an expressions of the
+form T() where T is the name of a type
+
+

@@ -1,0 +1,41 @@
+Classes that need destructors need copy and assignment
+
+Classes that need copy need assignment (but not necessarily destructors), and vice versa
+
+Implicit defaults:
+
+class Sales_data {
+    Sales_data() = default; // inline
+    Sales_data(const Sales_data&) = default;
+    Sales_data& operator = (const Sales_data&);
+    ~Sales_data() = default;
+};
+
+Sales_data& Sales_data::operator = (const Sales_data&) = default; // not inline
+
+Preventing copies:
+Any member function might be declared as deleted
+
+struct NoCopy {
+    NoCopy() = default;
+    NoCopy(const NoCopy&) = delete;
+    NoCopy &operator = (const NoCopy&) = delete;
+    ~NoCopy() = defult;
+};
+
+= delete must appear on the first declaration of a deleted function.
+ 
+The  destructor should not be a deleted member.
+It is not possible to define an object or delete a pointer to a dynamically allocated object of a type with a deleted destructor.
+
+* The synthesized destructor is defined as deleted if the class has a member whose own destructor is deleted or is inaccessible.
+* the synthesized copy constructor is defined as deleted if the class has a member whose own copy constructor is deleted
+or inaccessible. It is also deleted if the class has a member with a deleted or inaccessible destructor (just because
+we don't want to create objects that we cant delete later)
+* the synthesized copy-assignment operator is defined as deleted if a member has a deleted or inaccessible copy-assignment operator,
+or if the class has a const or reference member.
+* The synthesized default constructor is defined as deleted if the class has a member with a deleted or inaccessible destructor; or has a reference member that does not have an in-vlass initializer; or has a const member whose type does not explicitly define a default constructor and that member does not have an in-class initializer.
+
+In essence, the copy-control members are synthesized as deleted when it is impossible to copy, assign, or destroy a member of the class.
+
+Prior to 11 standard programmers used private undefined copy-control members to prevent copying.

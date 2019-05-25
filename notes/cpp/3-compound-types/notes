@@ -1,0 +1,20 @@
+int ival = 1024;
+int &refVal = ival;  // refVal refers to (is another name for) ival
+int &refVal2;        // error: a reference must be initialized
+
+A reference is not an object. Instead, a reference is just another name for an
+already existing object.
+
+A reference may be bound only to an
+object, not to a literal or to the result of a more general expression.
+
+int *&r = p;   // r is a reference to the pointer p
+
+extern const int bufSize = fcn(); // without extern const value is local to file
+
+int i = 42;
+const int &r1 = i;      // we can bind a const int& to a plain int object
+
+int *const curErr = &errNumb;  // curErr will always point to errNumb
+
+

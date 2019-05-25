@@ -1,0 +1,11 @@
+using SI = Sales_item;  // SI is a synonym for Sales_item
+
+template<typename T> using twin = pair<T, T>;
+twin<string> authors; // authors is a pair<string, string>
+
+template <typename T> using partNo = pair<T, unsigned>;
+partNo<string> books;  // books is a pair<string, unsigned>
+partNo<Vehicle> cars;  // cars is a pair<Vehicle, unsigned>
+partNo<Student> kids;  // kids is a pair<Student, unsigned>
+
+

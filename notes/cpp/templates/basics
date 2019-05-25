@@ -1,0 +1,214 @@
+A function template is a formula from which we can generate type-specific
+versions of that function.
+
+template <typename T>
+int compare(const T &v1, const T &v2)
+{
+    if (v1 < v2) return -1;
+    if (v2 < v1) return 1;
+    return 0;
+}
+
+In a template definition, the template parameter list cannot be empty.
+
+template parameters represent types or values used in the definition of
+a class or function. When we use a template, we specify—either implicitly or explicitly
+—template argument(s) to bind to the template parameter(s).
+
+When we call a function template, the compiler (ordinarily) uses the arguments of the
+call to deduce the template argument(s) for us.
+
+class and typename keywords have the same meaning
+
+Nontype Template Parameters
+These values must be constant
+expressions (§ 2.4.4, p. 65), which allows the compiler to instantiate the templates
+during compile time.
+
+A nontype parameter may be an integral type, or a pointer or (lvalue) reference to
+an object or to a function type.
+
+A template nontype parameter is a constant value inside the template definition.
+
+Template arguments used for nontype template parameters must be constant
+expressions.
+
+A function template can be declared inline or constexpr in the same ways as
+nontemplate functions. The inline or constexpr specifier follows the template
+parameter list and precedes the return type:
+// ok: inline specifier follows the template parameter list
+template <typename T> inline T min(const T&, const T&);
+
+By making the function parameters references to const, we ensure that our function
+can be used on types that cannot be copied.
+
+Template programs should try to minimize the number of requirements
+placed on the argument types.
+
+Definitions of function templates and member functions of class templates are
+ordinarily put into header files.
+
+It is up to the caller to guarantee that the arguments passed to the template
+support any operations that template uses, and that those operations behave
+correctly in the context in which the template uses them.
+
+Class templates differ from
+function templates in that the compiler cannot deduce the template parameter type(s)
+for a class template.
+
+Each instantiation of a class template constitutes an independent class. The
+type Blob<string> has no relationship to, or any special access to, the
+members of any other Blob type.
+
+A class template member function is itself an ordinary function. However, each
+instantiation of the class template has its own version of each member.
+
+template <typename T>
+ret-type Blob<T>::member-name(parm-list)
+
+By default, a member of an instantiated class template is instantiated only if
+the member is used.
+
+Inside the scope of the class template itself, we may use
+the name of the template without arguments
+
+template <typename T>
+BlobPtr<T> BlobPtr<T>::operator++(int)
+{
+    // no check needed here; the call to prefix increment will do the check
+    BlobPtr ret = *this;  // !!!
+    ++*this;    // advance one element; prefix ++ checks the increment
+    return ret;  // return the saved state
+}
+
+When a class contains a friend declaration (§ 7.2.1, p. 269), the class and the friend
+can independently be templates or not. A class template that has a nontemplate friend
+grants that friend access to all the instantiations of the template. When the friend is
+itself a template, the class granting friendship controls whether friendship includes all
+instantiations of the template or only specific instantiation(s).
+
+// forward declarations needed for friend declarations in Blob
+template <typename> class BlobPtr;
+template <typename> class Blob; // needed for parameters in operator==
+template <typename T>
+    bool operator==(const Blob<T>&, const Blob<T>&);
+template <typename T> class Blob {
+    // each instantiation of Blob grants access to the version of
+    // BlobPtr and the equality operator instantiated with the same type
+    friend class BlobPtr<T>;
+    friend bool operator==<T>
+           (const Blob<T>&, const Blob<T>&);
+    // other members as in § 12.1.1 (p. 456)
+};
+
+// forward declaration necessary to befriend a specific instantiation of a template
+template <typename T> class Pal;
+class C {  //  C is an ordinary, nontemplate class
+    friend class Pal<C>;  // Pal instantiated with class C is a friend to C
+    // all instances of Pal2 are friends to C;
+    // no forward declaration required when we befriend all instantiations
+    template <typename T> friend class Pal2;
+};
+
+template <typename T> class C2 { // C2 is itself a class template
+    // each instantiation of C2 has the same instance of Pal as a friend
+    friend class Pal<T>;  // a template declaration for Pal must be in
+scope
+    // all instances of Pal2 are friends of each instance of C2, prior declaration
+needed
+    template <typename X> friend class Pal2;
+    // Pal3 is a nontemplate class that is a friend of every instance of C2
+    friend class Pal3;    // prior declaration for Pal3 not needed
+};
+
+template <typename Type> class Bar {
+friend Type; // grants access to the type used to instantiate Bar
+    //  ...
+};
+
+
+Each instantiation of template class has its own instance of the static members.
+
+template <typename T> class Foo {
+public:
+   static std::size_t count() { return ctr; }
+   // other interface members
+private:
+   static std::size_t ctr;
+   // other implementation members
+};
+
+Definition:
+template <typename T>
+size_t Foo<T>::ctr = 0; // define and initialize ctr
+
+
+Foo<int> fi;                 // instantiates Foo<int> class
+                             // and the static data member ctr
+auto ct = Foo<int>::count(); // instantiates Foo<int>::count
+ct = fi.count();             // uses Foo<int>::count
+ct = Foo::count();           // error: which template instantiation?
+
+Like any other member function, a static member function is instantiated only if it is
+used in a program.
+
+As with function parameters, the names of a template parameter need not be the
+same across the declaration(s) and the definition of the same template
+
+For reasons we’ll explain in § 16.3 (p. 698), declarations for all the templates
+needed by a given file usually should appear together at the beginning of a
+file before any code that uses those names.
+
+Definition or multiplication?
+T::size_type * p;
+
+By default, the language assumes that a name accessed through the scope operator
+is not a type.
+
+template <typename T>
+typename T::value_type top(const T& c)
+{
+    if (!c.empty())
+        return c.back();
+    else
+        return typename T::value_type();
+}
+
+When we want to inform the compiler that a name represents a type, we
+must use the keyword typename, not class.
+
+Default arguments:
+// compare has a default template argument, less<T>
+// and a default function argument, F()
+template <typename T, typename F = less<T>>
+int compare(const T &v1, const T &v2, F f = F())
+{
+    if (f(v1, v2)) return -1;
+    if (f(v2, v1)) return 1;
+    return 0;
+}
+
+As with function default arguments, a template parameter may have a default
+argument only if all of the parameters to its right also have default arguments.
+
+template <class T = int> class Numbers {   // by default T is int
+};
+Numbers<> average_precision; // empty <> says we want the default type
+
+Member templates may not be virtual.
+
+Definition of template member of template class:
+template <typename T>     // type parameter for the class
+template <typename It>    // type parameter for the constructor
+    Blob<T>::Blob(It b, It e):
+              data(std::make_shared<std::vector<T>>(b, e)) {
+}
+
+Template constructor by the way ^
+
+ 
+To instantiate a member template of a class template, we must supply arguments for
+the template parameters for both the class and the function templates.
+
+
+

@@ -1,0 +1,7 @@
+For historical reasons, and for compatibility with C, string literals are not
+standard library strings. It is important to remember that these types differ
+when you use string literals and library strings.
+
+strings can be subsripted:
+string s = "abacaba";
+cout << s[3] << endl; // prints: c

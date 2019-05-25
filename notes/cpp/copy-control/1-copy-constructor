@@ -1,0 +1,28 @@
+The constructor is the copy constructor if its first parameter is a reference to the class type and any additional
+parameters have default values.
+
+class Foo {
+public:
+    Foo();
+    Foo(const Foo&);
+    // ...
+};
+
+Synthesized copy consturctor does memberwise copying.
+Elements of an array field are copied one by one.
+
+char* a = "abacaba";
+string b(a); // direct initialization
+string b = a; // copy initialization (call to copy constructor)
+// still compiler might rewrite last statement to optimize it.
+
+When we use copy initialization, we are asking the compiler to copy
+the right-hand operand into the object being created, converting that operand if
+necessary
+
+Copying happens when:
+* Define variable using =
+* Pass an object as an argument to a parameter of nonreference type
+* Return an object from a function that has a nonreference return type
+* Brace initialize the elements in an array or the members of an aggregate class
+

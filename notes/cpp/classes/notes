@@ -1,0 +1,59 @@
+Functions defined in the class are implicitly inline
+
+the compiler processes classes in two steps—
+the member declarations are compiled first, after which the member function bodies, if
+any, are processed. Thus, member function bodies may use other members of their
+class regardless of where in the class those members appear.
+
+Typenames are special:
+
+typedef double Money;
+class Account {
+public:
+    Money balance() { return bal; }  // uses Money from the outer scope
+private:
+    typedef double Money; // error: cannot redefine Money
+    Money bal;
+    // ...
+};
+
+
+Definition that is outside of a class:
+
+double Sales_data::avg_price() const {
+    if (units_sold)
+        return revenue/units_sold;
+    else
+        return 0;
+}
+
+Ordinarily, nonmember functions that are part of the interface of a class
+should be declared in the same header as the class itself.
+
+The only difference between using class and using struct to define a
+class is the default access level.
+
+class Screen {
+public:
+    typedef std::string::size_type pos;
+    // ...
+};
+
+We can explicitly declare a member function as inline as part of its declaration
+inside the class body. Alternatively, we can specify inline on the function definition
+that appears outside the class body
+
+A mutable data member is never const, even when it is a member of a const
+object.
+
+When we provide an in-class initializer, we must do so following an = sign or
+inside braces {}.
+
+class A; // forward delcaration which creates incomplete type
+
+We can use an incomplete type in only limited ways: We can define pointers or
+references to such types, and we can declare (but not define) functions that use an
+incomplete type as a parameter or return type.
+
+
+

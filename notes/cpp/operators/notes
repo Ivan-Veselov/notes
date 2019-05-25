@@ -1,0 +1,101 @@
+When an overloaded operator is a member function, 'this' is bound to the
+left-hand operand. Member operator functions have one less (explicit)
+parameter than the number of operands.
+
+An operator function must either be a member of a class or have at least one
+parameter of class type
+
+Four symbols (+, -, *, and &) serve as both unary and binary operators.
+
+Direct call:
+// equivalent calls to a nonmember operator function
+data1 + data2;           // normal expression
+operator+(data1, data2); // equivalent function call
+
+data1 += data2;             // expression-based ''call''
+data1.operator+=(data2);    // equivalent call to a member operator function
+
+Ordinarily, the comma, address-of, logical AND, and logical OR operators
+should not be overloaded.
+Because the overloaded versions of these operators do not preserve order of
+evaluation and/or short-circuit evaluation
+Another reason not to overload comma, which also applies to the address-of
+operator, is that unlike most operators, the language defines what the comma and
+address-of operators mean when applied to objects of class type.
+
+* The assignment (=), subscript ([]), call (()), and member access arrow (->)
+operators must be defined as members.
+* The compound-assignment operators ordinarily ought to be members. However,
+unlike assignment, they are not required to be members.
+* Operators that change the state of their object or that are closely tied to their
+given type—such as increment, decrement, and dereference—usually should be
+members.
+* Symmetric operators—those that might convert either operand, such as the
+arithmetic, equality, relational, and bitwise operators—usually should be defined
+as ordinary nonmember functions.
+
+About the last one:
+string s = "world";
+string t = s + "!";  // ok: we can add a const char* to a string
+string u = "hi" + s; // would be an error if + were a member of string
+
+output operator:
+ostream &operator<<(ostream &os, const Sales_data &item) {
+    os << item.isbn() << " " << item.units_sold << " "
+       << item.revenue << " " << item.avg_price();
+    return os;
+}
+
+Generally, output operators should print the contents of the object, with
+minimal formatting. They should not print a newline.
+
+istream &operator>>(istream &is, Sales_data &item);
+
+Input operators must deal with the possibility that the input might fail; output
+operators generally don’t bother.
+
+Input operators should decide what, if anything, to do about error recovery.
+
+Classes that define both an arithmetic operator and the related compound
+assignment ordinarily ought to implement the arithmetic operator by using
+the compound assignment. (what's the reason? Seems that it's OK, need to write less code)
+
+* If a class has an operation to determine whether two objects are equal, it
+should define that function as operator== rather than as a named function:
+Users will expect to be able to compare objects using ==; providing == means
+they won’t need to learn and remember a new name for the operation; and it is
+easier to use the library containers and algorithms with classes that define the
+== operator.
+* If a class defines operator==, that operator ordinarily should determine
+whether the given objects contain equivalent data.
+* Ordinarily, the equality operator should be transitive, meaning that if a == b
+and b == c are both true, then a == c should also be true.
+* If a class defines operator==, it should also define operator!=. Users will
+expect that if they can use == then they can also use !=, and vice versa.
+* One of the equality or inequality operators should delegate the work to the
+other. That is, one of these operators should do the real work to compare
+objects. The other should call the one that does the real work.
+
+If a single logical definition for < exists, classes usually should define the <
+operator. However, if the class also has ==, define < only if the definitions of
+< and == yield consistent results.
+
+Assignment operator may assign objects of other types.
+Assignment operators, regardless of
+parameter type, must be defined as member functions.
+
+Assignment operators must, and ordinarily compound-assignment operators
+should, be defined as members. These operators should return a reference to
+the left-hand operand.
+
+Subscript Operator
+To be compatible with the ordinary meaning of subscript, the subscript operator
+usually returns a reference to the element that is fetched.
+If a class has a subscript operator, it usually should define two versions: one
+that returns a plain reference and the other that is a const member and
+returns a reference to const.
+It is not possible to overload the [] operator to accept multiple arguments
+
+
+
+
