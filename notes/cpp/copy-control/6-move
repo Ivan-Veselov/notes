@@ -5,6 +5,14 @@ int &&r = i * 42; // ok: bind r to the result of the multiplication
 Rvalue references refer to objects that are about to be destroyed. Hence, we can "steal" state from an object
 bound to an rvalue reference.
 
+normally we cannot bind an rvalue reference to an lvalue
+int a = 0;
+int &&ref = a; // illegal
+
+But we are allowed to do it the other way:
+int &&rref = 0;
+int &ref = rref;
+
 variables are lvalues
 void push_back(string &&s) {
     // ...

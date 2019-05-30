@@ -18,6 +18,8 @@ undefined behavior if the base’s destructor is not virtual.
 A function that is declared as
 virtual in the base class is implicitly virtual in the derived classes as well.
 
+Virtual functions can be overloaded by other virtual functions, as well as non-virtual functions
+
 we can bind a base-class reference or pointer to the base-class part of a
 derived object.
 This conversion is often referred to as the derived-to-base conversion. As with any

@@ -1,0 +1,74 @@
+Some functions need to forward one or more of their arguments with their types
+unchanged to another, forwarded-to, function. In such cases, we need to preserve
+everything about the forwarded arguments, including whether or not the argument
+type is const, and whether the argument is an lvalue or an rvalue.
+
+template <typename F, typename T1, typename T2>
+void flip1(F f, T1 t1, T2 t2)
+{
+    f(t2, t1);
+}
+
+void f(int v1, int &v2) // note v2 is a reference
+{
+    cout << v1 << " " << ++v2 << endl;
+}
+
+f(42, i);        // f changes its argument i
+flip1(f, j, 42); // f called through flip1 leaves j unchanged
+
+
+
+To pass a reference through our flip function, we need to rewrite our function so that
+its parameters preserve the “lvalueness” of its given arguments. Thinking ahead a bit,
+we can imagine that we’d also like to preserve the constness of the arguments as
+well.
+
+template <typename F, typename T1, typename T2>
+void flip2(F f, T1 &&t1, T2 &&t2)
+{
+    f(t2, t1);
+}
+
+A function parameter that is an rvalue reference to a template type
+parameter (i.e., T&&) preserves the constness and lvalue/rvalue property of
+its corresponding argument.
+
+
+This version of flip2 solves one half of our problem. Our flip2 function works
+fine for functions that take lvalue references but cannot be used to call a function that
+has an rvalue reference parameter. For example:
+void g(int &&i, int& j)
+{
+    cout << i << " " << j << endl;
+}
+
+flip2(g, i, 42); // error: can't initialize int&& from an lvalue 
+what is passed to g will be the parameter named t2 inside flip2. A function
+parameter, like any other variable, is an lvalue expression
+
+
+Unlike move, forward must be called with an
+explicit template argument (§ 16.2.2, p. 682). forward returns an rvalue reference to
+that explicit argument type. That is, the return type of forward<T> is T&&.
+
+Ordinarily, we use forward to pass a function parameter that is defined as an
+rvalue reference to a template type parameter. Through reference collapsing on its
+return type, forward preserves the lvalue/rvalue nature of its given argument:
+template <typename Type> intermediary(Type &&arg)
+{
+    finalFcn(std::forward<Type>(arg));
+    // ...
+}
+
+
+When used with a function parameter that is an rvalue reference to template
+type parameter (T&&), forward preserves all the details about an
+argument’s type.
+
+
+template <typename F, typename T1, typename T2>
+void flip(F f, T1 &&t1, T2 &&t2)
+{
+    f(std::forward<T2>(t2), std::forward<T1>(t1));
+}

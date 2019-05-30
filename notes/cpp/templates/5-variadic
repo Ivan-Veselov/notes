@@ -1,0 +1,99 @@
+A variadic template is a template function or class that can take a varying number
+of parameters.
+
+The varying parameters are known as a parameter pack.
+
+A template parameter pack represents zero or more
+template parameters, and a function parameter pack represents zero or more
+function parameters.
+
+// Args is a template parameter pack; rest is a function parameter pack
+// Args represents zero or more template type parameters
+// rest represents zero or more function parameters
+template <typename T, typename... Args>
+void foo(const T &t, const Args& ... rest);
+
+int i = 0; double d = 3.14; string s = "how now brown cow";
+foo(i, s, 42, d);    // three parameters in the pack
+foo(s, 42, "hi");    // two parameters in the pack
+foo(d, s);           // one parameter in the pack
+foo("hi");           // empty pack
+
+When we need to know how many elements there are in a pack, we can use the
+sizeof... operator.
+
+sizeof... returns a constant
+expression
+
+template<typename ... Args> void g(Args ... args) {
+    cout << sizeof...(Args) << endl;  // number of type parameters
+    cout << sizeof...(args) << endl;  // number of function parameters
+}
+
+Variadic functions are often recursive
+
+// function to end the recursion and print the last element
+// this function must be declared before the variadic version of print is defined
+template<typename T>
+ostream &print(ostream &os, const T &t)
+{
+    return os << t; // no separator after the last element in the pack
+}
+// this version of print will be called for all but the last element in the pack
+template <typename T, typename... Args>
+ostream &print(ostream &os, const T &t, const Args&... rest)
+{
+    os << t << ", ";           // print the first argument
+    return print(os, rest...); // recursive call; print the other
+arguments
+}
+
+a nonvariadic
+template is more specialized than a variadic template
+
+
+pack expansion:
+The expansion of Args (const Args&... rest) applies the pattern "const Args&" to each element in the
+template parameter pack Args.
+
+The expansion of this pattern is a comma-separated
+list of zero or more parameter types, each of which will have the form const type &.
+
+rest... expands to a comma-separated list of the elements in the pack.
+
+ellipsis go after pattern that should be applied.
+
+More complex version:
+// call debug_rep on each argument in the call to print
+template <typename... Args>
+ostream &errorMsg(ostream &os, const Args&... rest)
+{
+    // print(os, debug_rep(a1), debug_rep(a2), ..., debug_rep(an)
+    return print(os, debug_rep(rest)...);
+}
+
+Calling debug_rep on each of rest elements
+
+The pattern in an expansion applies separately to each element in the pack.
+
+Forwarding and variadics:
+
+template <class... Args>
+inline
+void StrVec::emplace_back(Args&&... args)
+{
+    chk_n_alloc(); // reallocates the StrVec if necessary
+    alloc.construct(first_free++,
+std::forward<Args>(args)...);
+}
+
+
+std::forward<Args>(args)...
+expands both the template parameter pack, Args, and the function parameter pack,
+args.
+
+This pattern generates elements with the form
+std::forward<Ti>(ti)
+
+Variadic functions often forward their parameters to other functions. Such
+functions typically have a form similar to our emplace_back function

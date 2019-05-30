@@ -1,0 +1,74 @@
+Function templates can be overloaded by other templates or by ordinary, nontemplate
+functions.
+
+Function matching (§ 6.4, p. 233) is affected by the presence of function templates in
+the following ways:
+ 
+• The candidate functions for a call include any function-template instantiation for
+ which template argument deduction (§ 16.2, p. 678) succeeds.
+• The candidate function templates are always viable, because template argument
+deduction will have eliminated any templates that are not viable.
+• As usual, the viable functions (template and nontemplate) are ranked by the
+conversions, if any, needed to make the call. Of course, the conversions used to
+call a function template are quite limited (§ 16.2.1, p. 679).
+• Also as usual, if exactly one function provides a better match than any of the
+others, that function is selected. However, if there are several functions that
+provide an equally good match, then:
+– If there is only one nontemplate function in the set of equally good matches,
+the nontemplate function is called.
+– If there are no nontemplate functions in the set, but there are multiple function
+templates, and one of these templates is more specialized than any of the
+others, the more specialized function template is called.
+– Otherwise, the call is ambiguous.
+
+// print any type we don't otherwise handle
+template <typename T> string debug_rep(const T &t)
+{
+    ostringstream ret; // see § 8.3 (p. 321)
+    ret << t; // uses T's output operator to print a representation of t
+    return ret.str(); // return a copy of the string to which ret is bound
+}
+
+// print pointers as their pointer value, followed by the object to which the pointer points
+// NB: this function will not work properly with char*; see § 16.3 (p. 698)
+template <typename T> string debug_rep(T *p)
+{
+    ostringstream ret;
+    ret << "pointer: " << p;         // print the pointer's own value
+    if (p)
+        ret << " " << debug_rep(*p); // print the value to which p
+points
+    else
+        ret << " null pointer";      // or indicate that the p is null
+    return ret.str(); // return a copy of the string to which ret is bound
+}
+
+When there are several overloaded templates that provide an equally good
+match for a call, the most specialized version is preferred.
+
+// print strings inside double quotes
+string debug_rep(const string &s)
+{
+    return '"' + s + '"';
+}
+
+When a nontemplate function provides an equally good match for a call as a
+function template, the nontemplate version is preferred.
+
+// convert the character pointers to string and call the string version of debug_rep
+string debug_rep(char *p)
+{
+    return debug_rep(string(p));
+}
+string debug_rep(const char *p)
+{
+    return debug_rep(string(p));
+}
+
+It is worth noting that for the char* versions of debug_rep to work correctly, a
+declaration for debug_rep(const string&) must be in scope when these
+functions are defined.
+
+Declare every function in an overload set before you define any of the
+functions. That way you don’t have to worry whether the compiler will
+instantiate a call before it sees the function you intended to call.

@@ -1,0 +1,179 @@
+Function parameters whose
+type uses a template type parameter have special initialization rules. Only a very
+limited number of conversions are automatically applied to such arguments.
+
+As usual, top-level consts (§ 2.4.3, p. 63) in either the parameter or the argument
+are ignored
+
+The only other conversions performed in a call to a function template are
+• const conversions: A function parameter that is a reference (or pointer) to a
+const can be passed a reference (or pointer) to a nonconst object (§ 4.11.2,
+p. 162).
+• Array- or function-to-pointer conversions: If the function parameter is not a
+reference type, then the normal pointer conversion will be applied to arguments
+of array or function type. An array argument will be converted to a pointer to its
+first element. Similarly, a function argument will be converted to a pointer to the
+function’s type (§ 4.11.2, p. 161).
+
+Other conversions, such as the arithmetic conversions (§ 4.11.1, p. 159), derived-to-
+base (§ 15.2.2, p. 597), and user-defined conversions (§ 7.5.4, p. 294, and § 14.9, p.
+579), are not performed.
+
+const conversions and array or function to pointer are the only automatic
+conversions for arguments to parameters with template types.
+
+compare(10LL, 1024); // error: cannot instantiate compare(long, int)
+
+Normal conversions are applied to arguments whose type is not a template
+parameter.
+
+// T1 cannot be deduced: it doesn't appear in the function parameter list
+template <typename T1, typename T2, typename T3>
+T1 sum(T2, T3);
+auto val3 = sum<long long>(i, lng); // long long sum(int, long)
+
+
+// poor design: users must explicitly specify all three template parameters
+template <typename T1, typename T2, typename T3>
+T3 alternative_sum(T2, T1);
+
+
+For the same reasons that normal conversions are permitted for parameters that are
+defined using ordinary types (§ 16.2.1, p. 680), normal conversions also apply for
+arguments whose template type parameter is explicitly specified:
+long lng;
+compare(lng, 1024);       // error: template parameters don't match
+compare<long>(lng, 1024); // ok: instantiates compare(long, long)
+compare<int>(lng, 1024);  // ok: instantiates compare(int, int)
+
+
+What if return type is complicated?
+template <typename It>
+??? &fcn(It beg, It end)
+{
+    // process the range
+    return *beg;  // return a reference to an element from the range
+}
+
+// a trailing return lets us declare the return type after the parameter list is seen
+template <typename It>
+auto fcn(It beg, It end) -> decltype(*beg)
+{
+    // process the range
+    return *beg;  // return a reference to an element from the range
+}
+
+Sometimes we do not have direct access to the type that we need.
+To obtain the element type, for example, we can use a library type transformation template.
+These templates are defined in the type_traits header.
+
+auto fcn2(It beg, It end) ->
+    typename remove_reference<decltype(*beg)>::type
+{
+    // process the range
+    return *beg;  // return a copy of an element from the range
+}
+
+
+template <typename T> int compare(const T&, const T&);
+// pf1 points to the instantiation int compare(const int&, const int&)
+int (*pf1)(const int&, const int&) = compare;
+
+// overloaded versions of func; each takes a different function pointer type
+void func(int(*)(const string&, const string&));
+void func(int(*)(const int&, const int&));
+func(compare); // error: which instantiation of compare?
+
+// ok: explicitly specify which version of compare to instantiate
+func(compare<int>);  // passing compare(const int&, const int&)
+
+When the address of a function-template instantiation is taken, the context
+must be such that it allows a unique type or value to be determined for each
+template parameter.
+
+
+
+template <typename T> void f1(T&);  // argument must be an lvalue
+// calls to f1 use the referred-to type of the argument as the template parameter type
+f1(i);   //  i is an int; template parameter T is int
+f1(ci);  //  ci is a const int; template parameter T is const int
+f1(5);   //  error: argument to a & parameter must be an lvalue
+But: If the argument is const, then T will be
+deduced as a const type
+
+template <typename T> void f2(const T&); // can take an rvalue
+// parameter in f2 is const &; const in the argument is irrelevant
+// in each of these three calls, f2's function parameter is inferred as const int&
+f2(i);  // i is an int; template parameter T is int
+f2(ci); // ci is a const int, but template parameter T is int
+f2(5);  // a const & parameter can be bound to an rvalue; T is int
+When the function parameter is itself const, the type deduced for T will not be
+a const type.
+
+
+template <typename T> void f3(T&&);
+f3(42); // argument is an rvalue of type int; template parameter T is int
+
+
+
+Exceptions to rvalue ref binding:
+When we pass an lvalue (e.g., i) to a function parameter that is an
+rvalue reference to a template type parameter (e.g, T&&), the compiler deduces the
+template type parameter as the argument’s lvalue reference type.
+So, when we call
+f3(i), the compiler deduces the type of T as int&, not int.
+
+Ordinarily, we cannot (directly) define a reference
+to a reference (§ 2.3.1, p. 51). However, it is possible to do so indirectly through a
+type alias (§ 2.5.1, p. 67) or through a template type parameter.
+
+If we
+indirectly create a reference to a reference, then those references “collapse.”
+
+In all but
+one case, the references collapse to form an ordinary lvalue reference type.
+References
+collapse to form an rvalue reference only in the specific case of an rvalue reference to
+an rvalue reference.
+
+That is, for a given type X: 
+• X& &, X& &&, and X&& & all collapse to type X&
+• The type X&& && collapses to X&&
+
+Reference collapsing applies only when a reference to a reference is created
+indirectly, such as in a type alias or a template parameter.
+
+The combination of the reference collapsing rule and the special rule for type
+deduction for rvalue reference parameters means that we can call f3 on an lvalue.
+
+An argument of any type can be passed to a function parameter that is an
+rvalue reference to a template parameter type (i.e., T&&). When an lvalue is
+passed to such a parameter, the function parameter is instantiated as an
+ordinary, lvalue reference (T&).
+
+template <typename T> void f3(T&& val)
+{
+    T t = val;  // copy or binding a reference?
+    t = fcn(t); // does the assignment change only t or val and t?
+    if (val == t) { /* ... */ } // always true if T is a reference type
+}
+
+In practice, rvalue reference parameters are used in one of two contexts: Either the
+template is forwarding its arguments, or the template is overloaded.
+
+
+template <typename T>
+typename remove_reference<T>::type&& move(T&& t)
+{
+   // static_cast covered in § 4.11.3 (p. 163)
+static_cast<typename
+   return
+remove_reference<T>::type&&>(t);
+}
+
+
+Even though we cannot implicitly convert an lvalue to an rvalue reference, we can
+explicitly cast an lvalue to an rvalue reference using static_cast.
+
+
+

@@ -211,4 +211,25 @@ To instantiate a member template of a class template, we must supply arguments f
 the template parameters for both the class and the function templates.
 
 
+If we don't want to instantiate same template several times:
+// instantion declaration and definition
+extern template class Blob<string>;             // declaration
+template int compare(const int&, const int&);   // definition
+
+ 
+When the compiler sees an extern template declaration, it will not generate code for
+that instantiation in that file.
+
+Because the compiler automatically instantiates a template when we use it, the
+extern declaration must appear before any code that uses that instantiation
+
+template class Blob<string>; // instantiates all members of the class template
+
+There must be an explicit instantiation definition somewhere in the program
+for every instantiation declaration.
+
+An instantiation definition for a class template instantiates **all** the members of that
+template including inline member functions.
+
+
 
