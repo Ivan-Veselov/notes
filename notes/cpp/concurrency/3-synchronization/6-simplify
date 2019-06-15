@@ -1,0 +1,25 @@
+Functional programming: every function is pure
+Actors model
+
+Experimental: Given a future fut, a continuation is added with the call
+fut.then(continuation).
+Continuation is run on an unspecified thread.
+
+Continuations can be chained to eliminate threads blocking.
+
+Waiting for all the futures in the loop is ineffecient
+std::experimental::when_all
+
+when_any waits for one future from a collection to be ready
+
+A latch is a syn-
+chronization object that becomes ready when its counter is decremented to zero.
+
+Whereas a latch doesn’t care which
+threads decrement the counter—the same thread can decrement the counter multi-
+ple times, or multiple threads can each decrement the counter once, or some combi-
+nation of the two—with barriers, each thread can only arrive at the barrier once per
+cycle.
+
+
+

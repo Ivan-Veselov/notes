@@ -1,0 +1,126 @@
+void do_some_work();
+std::thread my_thread(do_some_work);
+
+// this is a function definition. Function takes one parameter (pointer to a function that return background_task)
+// and return std::tread
+std::thread my_thread(background_task());
+
+std::thread my_thread((background_task()));
+std::thread my_thread{background_task()};
+
+if std::thread is destroyed and thread was not joined or detached then program is terminated.
+
+If you need to wait for a thread to complete, you can do this by calling join() on the asso-
+ciated std::thread instance.
+The act of calling join() also cleans up any storage associ-
+ated with the thread, so the std::thread object is no longer associated with the now-
+finished thread
+
+
+void f()
+{
+    int some_local_state=0;
+    func my_func(some_local_state);
+    std::thread t(my_func);
+    try
+    {
+        do_something_in_current_thread();
+    }
+    catch(...)
+    {
+        t.join();
+        throw;
+    }
+    
+    t.join();
+}
+
+
+Also it is possible to use RAII.
+
+Calling detach() on a std::thread object leaves the thread to run in the back-
+ground, with no direct means of communicating with it.
+Detached threads are often called daemon threads after the UNIX concept of a
+daemon process that runs in the background without any explicit user interface.
+
+you can only call t.detach() for a std::thread object t when t.joinable() returns true.
+
+
+
+arguments of a starting function are **copied** into internal storage
+
+If you’re familiar with std::bind , the parameter-passing semantics will be unsur-
+prising, because both the operation of the std::thread constructor and the opera-
+tion of std::bind are defined in terms of the same mechanism.
+
+void f(int i,std::string const& s);
+
+void oops(int some_param)
+{
+    char buffer[1024];
+    sprintf(buffer, "%i",some_param);
+    std::thread t(f,3,buffer); // buffer is converted to string on the other thread side. It may be that by this time memory will be freed.
+    t.detach();
+}
+
+here’s a significant chance that the function oops will exit before
+the buffer has been converted to a std::string on the new thread, thus leading to
+undefined behavior.
+
+The solution is to cast to std::string before passing the buffer
+to the std::thread constructor
+
+If we want real referencing:
+std::thread t(update_data_for_widget, w, std::ref(data));
+
+unique_ptrs can be moved to thread ctor normally
+
+std::thread supports move-semantic
+
+But:
+std::thread t1(f);
+std::thread t2(g);
+t1 = std::move(t2); // terminates the program
+
+
+The move support in std::thread also allows for containers of std::thread
+objects, if those containers are move aware (like the updated std::vector<> ).
+
+
+std::thread::hardware_concurrency()
+This function returns an indication of the number of threads that can truly run concurrently for a given execution
+of a program.
+This is only a hint, and the function
+might return 0 if this information is not available, but it can be a useful guide for split-
+ting a task among threads.
+
+
+
+Thread identifiers are of type std::thread::id and can be retrieved in two ways.
+First, the identifier for a thread can be obtained from its associated std::thread
+object by calling the get_id() member function.
+
+Alternatively,
+the identifier for the current thread can be obtained by calling std::this_thread::
+get_id() , which is also defined in the <thread> header.
+
+Objects of type std::thread::id can be freely copied and compared; they
+wouldn’t be of much use as identifiers otherwise.
+
+If two objects of type std::thread::id
+are equal, they represent the same thread, or both are holding the “not any thread”
+value.
+
+objects of type std::thread::id offer the complete set of compari-
+son operators, which provide a total ordering for all distinct values.
+This allows them
+to be used as keys in associative containers, or sorted, or compared in any other way
+that you as a programmer may see fit.
+
+The Standard Library also provides
+std::hash<std::thread::id> so that values of type std::thread::id can be used as
+keys in the new unordered associative containers too.
+
+Instances of std::thread::id are often used to check whether a thread needs to
+perform some operation. if (current thread equals `id`) then do this.
+

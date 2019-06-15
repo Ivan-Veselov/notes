@@ -1,0 +1,72 @@
+a clock is a class that provides four distinct pieces of information:
+* The time now
+* The type of the value used to represent the times obtained from the clock
+* The tick period of the clock
+* Whether or not the clock ticks at a uniform rate and is therefore considered to be a steady clock
+
+The current time of a clock can be obtained by calling the now() static member function
+for that clock class; for example, std::chrono::system_clock::now() will return the
+current time of the system clock.
+
+The tick period of the clock is specified as a fractional number of seconds, which is
+given by the period member typedef of the clock—a clock that ticks 25 times per second has a period of
+std::ratio<1,25> , whereas a clock that ticks every 2.5 seconds has a period of std::ratio<5,2>.
+
+There’s no guarantee that the
+observed tick period in a given run of the program matches the specified period for
+that clock
+
+If a clock ticks at a uniform rate (whether or not that rate matches the period ) and
+can’t be adjusted, the clock is said to be a steady clock.
+
+Not-Steady clocks might return smaller values for `now` compared to values returned by prior calls.
+
+Steady clocks are important for timeout calculations, as you’ll see shortly, so the C++
+Standard Library provides one in the form of std::chrono::steady_clock.
+
+Durations
+
+Durations are the simplest part of the time support; they’re handled by the std::
+chrono::duration<> class template (all the C++ time-handling facilities used by the
+Thread Library are in the std::chrono namespace).
+
+The first template parameter is
+the type of the representation (such as int , long , or double ), and the second is a frac-
+tion specifying how many seconds each unit of the duration represents. For example,
+a number of minutes stored in a short is std::chrono::duration<short,std::
+ratio<60,1>>
+
+The Standard Library provides a set of predefined typedef s in the std::chrono
+namespace for various durations: nanoseconds , microseconds , milliseconds , sec-
+onds , minutes , and hours .
+
+C++14
+using namespace std::chrono_literals;
+auto one_day=24h;
+auto half_an_hour=30min;
+auto max_time_between_messages=30ms;
+
+15ns and std::chrono::nanoseconds(15) are identical values
+
+2.5min (float literal) will be std::chrono::duration<some-floating-point-type,std::ratio<60,1>>
+
+std::chrono::milliseconds ms(54802);
+std::chrono::seconds s = std::chrono::duration_cast<std::chrono::seconds>(ms);
+The result is truncated (s = 54)
+
+Durations support arithmetic, so you can add and subtract durations to get new
+durations or multiply or divide by a constant of the underlying representation type
+(the first template parameter).
+
+Time points
+The time point for a clock is represented by an instance of the std::chrono::time_
+point<> class template, which specifies which clock it refers to as the first template
+parameter and the units of measurement (a specialization of std::chrono::dura-
+tion<> ) as the second template parameter.
+
+The value of a time point is the length of
+time (in multiples of the specified duration) since a specific point in time
+
+wait_for + spurious wake-up works bad. (you may wait forever)
+
+

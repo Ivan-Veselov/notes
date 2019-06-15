@@ -1,0 +1,57 @@
+If a thread needs to wait for a specific one-off event, it somehow obtains a future
+representing that event.
+
+There are two sorts of futures in the C++ Standard Library, implemented as two
+class templates declared in the <future> library header: unique futures ( std::future<> )
+and shared futures ( std::shared_future<> ).
+
+The std:future<void> and
+std::shared_future<void> template specializations should be used where there’s no
+associated data.
+
+You use std::async to start an asynchronous task for which you don’t need the
+result right away.
+
+Rather than giving you a std::thread object to wait on, std::async
+returns a std::future object, which will eventually hold the return value of the func-
+tion.
+
+By default, it’s up to the implementation whether std::async starts a new thread, or
+whether the task runs synchronously when the future is waited for (may be configured).
+
+The class template std::packaged_task wraps any Callable target (function, lambda expression, bind expression, or another function object) so that it can be invoked asynchronously. Its return value or exception thrown is stored in a shared state which can be accessed through std::future objects.
+
+std::promise<T> provides a means of setting a value (of type T ) that can later be
+read through an associated std::future<T> object.
+
+the waiting thread could
+block on the future, while the thread providing the data could use the promise half of
+the pairing to set the associated value and make the future ready.
+
+if the function call invoked as part of std::async
+throws an exception, that exception is stored in the future in place of a stored value, the
+future becomes ready, and a call to get() rethrows that stored exception. (Note: the
+standard leaves it unspecified whether it is the original exception object that’s rethrown
+or a copy; different compilers and libraries make different choices on this matter.)
+
+The
+same happens if you wrap the function in a std::packaged_task
+
+Naturally, std::promise provides the same facility, with an explicit function call. If
+you wish to store an exception rather than a value, you call the set_exception()
+member function rather than set_value() .
+
+Destruction of promise (or packaged_task) without setting the value puts exception inside of corresponding future.
+
+Although std::future handles all the synchronization necessary to transfer data from
+one thread to another, calls to the member functions of a particular std::future
+instance are not synchronized with each other.
+
+std::shared_future instances are copyable (so you can have multiple objects referring
+to the same associated state)
+
+Accessing the shared asynchronous state from multiple threads is safe if
+each thread accesses that state through its own std::shared_future object.
+
+future can transfer its state to std::shared_future through std::move or `shared` member function.
+

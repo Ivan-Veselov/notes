@@ -1,0 +1,153 @@
+If all shared data is read-only, there’s no problem,
+because the data read by one thread is unaffected by whether or not another thread is reading the
+same data.
+
+In concurrency, a race condition is anything where the outcome depends on the
+relative ordering of execution of operations on two or more threads; the threads
+race to perform their respective operations.
+
+When talking about concurrency, the term race condition is usually used to mean a problematic race condition
+
+In C++, you create a mutex by constructing an instance of std::mutex , lock it with a
+call to the member function lock() , and unlock it with a call to the member func-
+tion unlock().
+
+the Standard
+C++ Library provides the std::lock_guard class template, which implements RAII idiom for a mutex;
+it locks the supplied mutex on construction and unlocks it
+on destruction, thus ensuring a locked mutex is always correctly unlocked.
+
+C++17 has std::scoped_lock and lock_guard is obsolete.
+
+Don’t pass pointers and references to protected data outside the scope of the lock, whether by
+returning them from a function, storing them in externally visible memory, or passing them as
+arguments to user-supplied functions.
+
+It is not safe to use top() and the stack.pop(). Some thread my delete last element between these two operations.
+Good idea is to combine pop and top functions. But this leads to problems with exceptions safety in cases when
+copy ctor of elements in the stack may through an exception (vector can't allocate memory).
+Solutions: accept reference, return shared_ptr (why not unique?), force only noexcept ctors.
+
+Sometimes it is a good idea to have one lock for the whole operation so that everything is safe. But it also
+may reduce perfomance because of the large contention.
+
+
+The common advice for avoiding deadlock is to always lock the two mutexes in the
+same order: if you always lock mutex A before mutex B, then you’ll never deadlock.
+
+
+std::lock — a function that can lock two or more mutexes at once without risk of deadlock.
+std::scoped_lock -- analouge of lock_guard for several locks (C++17)
+
+C++11 way:
+std::lock(lhs.m,rhs.m);
+std::lock_guard<std::mutex> lock_a(lhs.m,std::adopt_lock);
+std::lock_guard<std::mutex> lock_b(rhs.m,std::adopt_lock);
+
+The guidelines for avoiding deadlock all boil down to one idea:
+don’t wait for another thread if there’s a chance it’s waiting for you.
+
+Guidelines to avoid deadlocks:
+Avoid nested locks (lock when another mutex is already locked)
+If it is possible use std::lock to acquire several locks without risk of deadlock
+
+avoid calling user-supplied code while holding a lock
+But sometimes it is unavoidable (generic code for example)
+
+acquire locks in a fixed order
+the key is to define the order in a way that’s consis-
+tent between threads.
+
+use a lock hierarchy
+The idea is
+that you divide your application into layers and identify all the mutexes that may be
+locked in any given layer. When code tries to lock a mutex, it isn’t permitted to lock
+that mutex if it already holds a lock from a lower layer.
+
+You can check this at runtime
+by assigning layer numbers to each mutex and keeping a record of which mutexes are
+locked by each thread.
+
+std::unique_lock
+More flexible version of std::lock_guard
+First off, just as you can pass std::adopt_lock as a second argument
+to the constructor to have the lock object manage the lock on a mutex, you can also
+pass std::defer_lock as the second argument to indicate that the mutex should
+remain unlocked on construction.
+
+std::unique_lock takes more space and is a fraction slower to use than std::lock_guard
+std::unique_lock is movable but not copyable
+
+Where possible, lock a mutex only
+while actually accessing the shared data; try to do any processing of the data outside
+the lock. In particular, don’t do any really time-consuming activities like file I/O while
+holding a lock.
+
+void get_and_process_data()
+{
+    std::unique_lock<std::mutex> my_lock(the_mutex);
+    some_class data_to_process=get_next_data_chunk();
+    
+    my_lock.unlock();
+    result_type result=process(data_to_process);
+    my_lock.lock();
+    
+    write_result(data_to_process,result);
+}
+
+In general, a lock should be held for only the
+minimum possible time needed to perform the required operations.
+
+if you don’t hold the required locks for the entire duration of an operation, you’re exposing yourself to
+race conditions.
+
+
+Protecting shared data during initialization
+
+std::shared_ptr<some_resource> resource_ptr;
+std::once_flag resource_flag;
+
+void init_resource()
+{
+    resource_ptr.reset(new some_resource);
+}
+
+void foo()
+{
+    std::call_once(resource_flag,init_resource);
+    resource_ptr->do_something();
+}
+
+
+Static local variables are initialized properly (exactly one thread will perform initialization and others will
+wait):
+
+class my_class;
+my_class& get_my_class_instance()
+{
+    static my_class instance;
+    return instance;
+}
+
+
+Protecting rarely updated data structures
+C++17 has shared_mutex
+C++11 doesn't have it :(
+But, there is boost::shared_mutex.
+boost::shared_lock<boost::shared_mutex> for automatic locking (analog of unique_lock)
+
+
+Recursive locking
+std::recursive_mutex
+It works just like std::mutex , except that you can acquire
+multiple locks on a single instance from the same thread.
+You must release all your
+locks before the mutex can be locked by another thread
+
+Most of the time, if you think you want a recursive mutex, you probably need to
+change your design instead.
+
+
+
+
+

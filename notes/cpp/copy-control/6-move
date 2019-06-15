@@ -33,9 +33,17 @@ A::A(A &&a) noexcept
 vectors push_back gives exceptions guarantees. If it doesn't know that move constructor won't throw an exception
 it will use copy constructor instead. noexcept gives performance boost.
 
+Move constructors and move assignment operators that cannot throw
+exceptions should be marked as noexcept.
+
 A moved-from object must be left destructible
 
 The compiler synthesized the move constructor and move assignment only if a class does not define any of its own copy-control members and only if all the data members can be moved constructed and move assigned, respectively.
+
+https://stackoverflow.com/questions/18653726/is-the-default-move-constructor-defined-as-noexcept
+Default move ctor is noexcept
+And you can test whether or not your expectations have been met:
+static_assert(std::is_nothrow_move_constructible<MyType>::value, "MyType should be noexcept MoveConstructible");
 
 Classes that define a move constructor or move-assignment operator must also define their own copy operations. Otherwise, those members are deleted by default.
 

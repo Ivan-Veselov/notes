@@ -1,0 +1,65 @@
+it’s common to want a thread to wait for a specific event to happen or a
+condition to be true
+
+condition variable
+Conceptually, a condition
+variable is associated with some event or other condition, and one or more threads can wait
+for that condition to be satisfied.
+
+std::condition_variable and std::condition_variable_any
+Both of
+these are declared in the <condition_variable> library header.
+
+In both cases, they
+need to work with a mutex in order to provide appropriate synchronization
+
+the former is limited to working with std::unique_lock<std::mutex> , whereas the latter can work with anything
+that meets some minimal criteria for being mutex-like, hence the _any suffix.
+
+Because
+std::condition_variable_any is more general, there’s the potential for additional
+costs in terms of size, performance, or operating system resources, so
+std::condition_variable should be preferred unless the additional flexibility is required.
+
+std::mutex mut;
+std::queue<data_chunk> data_queue;
+std::condition_variable data_cond;
+
+void data_preparation_thread()
+{
+    while(more_data_to_prepare())
+    {
+        data_chunk const data=prepare_data();
+        std::lock_guard<std::mutex> lk(mut);
+        data_queue.push(data);
+        data_cond.notify_one();
+    }
+}
+
+void data_processing_thread()
+{
+    while(true)
+    {
+        std::unique_lock<std::mutex> lk(mut);
+        data_cond.wait(lk,[]{return !data_queue.empty();});
+        data_chunk data=data_queue.front();
+        data_queue.pop();
+        lk.unlock();
+        process(data);
+        if(is_last_chunk(data))
+            break;
+    }
+}
+
+During a call to wait() , a condition variable may check the
+supplied condition any number of times; however, it always does so with the mutex
+locked and will return immediately if (and only if) the function provided to test the
+condition returns true .
+
+When the waiting thread reacquires the mutex and checks
+the condition, if it isn’t in direct response to a notification from another thread, it’s
+called a spurious wake.
+
+If the waiting thread is going to wait only once, so when the condition is true it will
+never wait on this condition variable again, a condition variable might not be the best
+choice of synchronization mechanisms.

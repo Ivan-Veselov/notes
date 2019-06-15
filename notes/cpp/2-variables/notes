@@ -2,3 +2,14 @@ extern int i;   // declares but does not define i
 int j;          // declares and defines j
 
 extern double pi = 3.1416; // definition anyway
+
+A global variable can be declared extern locally.
+
+// file1.c
+int Count;
+
+// file2.c
+void foo(void) {
+  extern int Count;
+  Count++;
+}

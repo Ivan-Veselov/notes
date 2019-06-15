@@ -5,3 +5,25 @@ string::const_iterator it4;      // it4 can read but not write characters
 
 begin(); end();
 cbegin(); cend();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Function that calculates distance between two iterators
+std::distance(first, last)
+
+Function that moves iterator on a given number of steps
+std::advance(it, num_steps);
